@@ -4,29 +4,23 @@ import os
 
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
-    QLineEdit, QFileDialog, QFrame
+    QLineEdit, QFileDialog, QFrame, QApplication
 )
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, QTimer
 
 from core.monitor import get_snapshot, should_trigger_alert
 from core.alerts import AlertSound
 from core.timer import get_uptime_minutes, format_idle_duration
-
 from ui.components import make_link, make_donate_button
 from utils.helpers import safe_float
-
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QIcon
-
 
 
 class RenderUpdateChecker(QWidget):
     def __init__(self):
         super().__init__()
 
-# --- ДОБАВЛЕНО В ИНИЦИАЛИЗАТОРЕ ---
-self.sound_enabled = True
-
+        self.sound_enabled = True
         self.folder_path = ""
         self.timeout_minutes = 1
         self.monitoring = False
@@ -34,6 +28,7 @@ self.sound_enabled = True
         self.last_snapshot = {}
         self.alert_counter = 0
         self.uptime_start = time.time()
+
         if getattr(sys, 'frozen', False):
             base_path = sys._MEIPASS
         else:
@@ -57,7 +52,6 @@ self.sound_enabled = True
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         layout.addWidget(title)
 
-        # выбор папки
         self.folder_label = QLabel("📁 Отслеживаемая папка")
         layout.addWidget(self.folder_label)
 
@@ -65,16 +59,12 @@ self.sound_enabled = True
         select_btn.clicked.connect(self.select_folder)
         layout.addWidget(select_btn)
 
-        # таймер ожидания
         time_row = QHBoxLayout()
         time_row.addWidget(QLabel("⌛ Время ожидания (мин):"))
         self.timeout_input = QLineEdit("1")
         time_row.addWidget(self.timeout_input)
         layout.addLayout(time_row)
 
-        # кнопка Старт/Пауза
-        
-        # кнопка Старт/Пауза + Звук
         control_row = QHBoxLayout()
         self.toggle_btn = QPushButton("🔎 Старт")
         self.toggle_btn.clicked.connect(self.toggle_monitoring)
@@ -86,11 +76,8 @@ self.sound_enabled = True
         self.sound_btn.clicked.connect(self.toggle_sound)
         self.sound_btn.setFixedSize(32, 32)
         control_row.addWidget(self.sound_btn)
-
         layout.addLayout(control_row)
 
-
-        # строка статуса и времени активности
         status_row = QHBoxLayout()
         self.status = QLabel("🔲 Готов к запуску")
         self.timer_counter_label = QLabel("⏱ Время активности: 0 мин.")
@@ -98,7 +85,6 @@ self.sound_enabled = True
         status_row.addWidget(self.timer_counter_label)
         layout.addLayout(status_row)
 
-        # предупреждение
         self.warning_block = QFrame()
         self.warning_block.setFrameShape(QFrame.Shape.StyledPanel)
         self.warning_block.setVisible(False)
@@ -110,7 +96,6 @@ self.sound_enabled = True
         warning_layout.addWidget(self.counter_label)
 
         btn_row = QHBoxLayout()
-        
         self.resume_btn = QPushButton("✅ Продолжить")
         self.resume_btn.clicked.connect(self.resume_monitoring)
         btn_row.addStretch()
@@ -123,8 +108,7 @@ self.sound_enabled = True
         warning_layout.addLayout(btn_row)
         self.warning_block.setLayout(warning_layout)
         layout.addWidget(self.warning_block)
-        
-        # кредиты и донат
+
         link_row = QHBoxLayout()
         link_row.addWidget(QLabel("💡 Идея "))
         link_row.addWidget(make_link("camfrae", "https://camfrae.com/"))
@@ -134,7 +118,6 @@ self.sound_enabled = True
         link_row.addWidget(make_link("GitHub", "https://github.com/camfrae"))
         link_row.addWidget(make_link("🤙 Донат", "https://camfrae.com/donate"))
         layout.addLayout(link_row)
-
 
         self.setLayout(layout)
 
@@ -197,7 +180,6 @@ self.sound_enabled = True
         self.status.setText("⏸ Мониторинг приостановлен")
         self.toggle_btn.setText("▶ Старт")
 
-
     def resume_monitoring(self):
         self.sound_enabled = True
         self.alert.enabled = True
@@ -207,7 +189,6 @@ self.sound_enabled = True
         self.idle_timer.stop()
         self.warning_block.setVisible(False)
         self.alert.stop()
-                self.mute_btn.setStyleSheet("font-size: 18px;")
         self.start_monitoring()
 
     def pause_monitoring(self):
@@ -215,9 +196,6 @@ self.sound_enabled = True
         self.warning_block.setVisible(False)
         self.alert.stop()
         self.stop_monitoring()
-
-    
-        self.alert.disable(self.mute_btn)
 
     def check_folder(self):
         if not self.monitoring:
@@ -239,7 +217,7 @@ self.sound_enabled = True
         self.status.setText("⚠ Обнаружено бездействие")
         self.alert.repeat_every(10000, lambda: not self.monitoring)
         self.idle_timer.start()
-        QApplication.alert(self, 0)  # ← мигает иконкой на панели задач
+        QApplication.alert(self, 0)
 
     def update_idle_counter(self):
         self.alert_counter += 1
@@ -249,12 +227,8 @@ self.sound_enabled = True
     def update_uptime(self):
         mins = get_uptime_minutes(self.uptime_start)
         self.timer_counter_label.setText(f"⏱ Время активности: {mins} мин.")
-        
 
     def toggle_sound(self):
         self.sound_enabled = self.sound_btn.isChecked()
         self.alert.enabled = self.sound_enabled
-        if self.sound_enabled:
-            self.sound_btn.setText("🔔")
-        else:
-            self.sound_btn.setText("🔕")
+        self.sound_btn.setText("🔔" if self.sound_enabled else "🔕")
