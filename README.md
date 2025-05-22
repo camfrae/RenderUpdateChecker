@@ -26,7 +26,7 @@
 
 ## 📦 Скачивание
 
-🔽 [Скачать RenderUpdateChecker.exe (Windows)](https://github.com/your-username/RenderUpdateChecker/releases/latest)
+🔽 [Скачать RenderUpdateChecker.exe (Windows)](https://github.com/camfrae/RenderUpdateChecker/releases/latest)
 
 ---
 
