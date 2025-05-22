@@ -20,7 +20,7 @@
 
 ## 🖥 Скриншот
 
-![Screenshot]([https://your-screenshot-url.com](https://i.ibb.co/s9f8bLBW/Render-Update-Checker-1-Fqwl5-KXZH.png)) <!-- Здесь можно вставить изображение -->
+<img src="https://i.ibb.co/s9f8bLBW/Render-Update-Checker-1-Fqwl5-KXZH.png" alt="Render-Update-Checker-1-Fqwl5-KXZH" border="0">
 
 ---
 
